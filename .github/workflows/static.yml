@@ -37,19 +37,18 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           # Subir todo el repositorio
-          path: 'site'
-          name: 'site'
+          path: "site"
+          name: "site"
       - name: Desplegar en GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v3
+        uses: actions/deploy-pages@v2
         with:
           # Desplegar el artefacto subido
-          artifact-name: 'site'
+          artifact-name: "site"
           token: ${{ secrets.GITHUB_TOKEN }}
           # Establecer la rama objetivo como la rama predeterminada de GitHub Pages (gh-pages)
           branch: gh-pages
           # Establecer el directorio de origen dentro del artefacto
-          source-directory: 'pages'
+          source-directory: "pages"
           # Dejar en blanco el directorio de compilación dentro del directorio de origen
-          build-directory: ''
-
+          build-directory: ""
