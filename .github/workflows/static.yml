@@ -1,0 +1,55 @@
+# Flujo de trabajo simple para implementar contenido estático en GitHub Pages
+name: Desplegar contenido estático en Pages
+
+on:
+  # Se ejecuta cuando se realizan cambios en la rama predeterminada
+  push:
+    branches: ["main"]
+
+  # Permite ejecutar este flujo de trabajo manualmente desde la pestaña "Actions"
+  workflow_dispatch:
+
+# Establece los permisos del GITHUB_TOKEN para permitir el despliegue en GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Permite solo una implementación concurrente, omitiendo las ejecuciones en cola entre la ejecución en progreso y la última en cola.
+# Sin embargo, NO cancela las ejecuciones en progreso, ya que queremos permitir que se completen estas implementaciones de producción.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Única tarea de implementación, ya que solo estamos desplegando
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Configurar Pages
+        uses: actions/configure-pages@v3
+      - name: Subir artefacto
+        uses: actions/upload-artifact@v2
+        with:
+          # Subir todo el repositorio
+          path: 'site'
+          name: 'site'
+      - name: Desplegar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v3
+        with:
+          # Desplegar el artefacto subido
+          artifact-name: 'site'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Establecer la rama objetivo como la rama predeterminada de GitHub Pages (gh-pages)
+          branch: gh-pages
+          # Establecer el directorio de origen dentro del artefacto
+          source-directory: 'pages'
+          # Dejar en blanco el directorio de compilación dentro del directorio de origen
+          build-directory: ''
+
